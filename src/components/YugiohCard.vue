@@ -56,13 +56,13 @@
           <div v-show="activeTabIndex === 0">
             <el-form :model="formData" label-width="80px" size="small">
               <el-form-item label="卡片类型">
-                <el-select
-                  v-model="form.card"
+            <el-select
+              v-model="form.card"
                   placeholder="请选择卡片类型"
-                  @change="changeCard"
-                >
-                  <el-option label="游戏王" value="yugioh" />
-                  <el-option label="游戏王卡背" value="yugioh-back" />
+              @change="changeCard"
+            >
+              <el-option label="游戏王" value="yugioh" />
+              <el-option label="游戏王卡背" value="yugioh-back" />
                 </el-select>
               </el-form-item>
               
@@ -312,8 +312,8 @@
                       <el-option label="SER" value="ser" />
                       <el-option label="GSER" value="gser" />
                       <el-option label="PSER" value="pser" />
-                    </el-select>
-                  </el-form-item>
+            </el-select>
+          </el-form-item>
                 </el-col>
               </el-row>
               
@@ -343,14 +343,14 @@
           <div v-show="activeTabIndex === 4">
             <el-form :model="form" label-width="80px" size="small">
               <el-form-item label="JSON数据">
-                <json-editor-vue
-                  v-model="jsonData"
+            <json-editor-vue
+              v-model="jsonData"
                   style="width: 100%; height: 200px;"
-                  mode="text"
-                  v-bind="jsonOption"
-                />
-              </el-form-item>
-            </el-form>
+              mode="text"
+              v-bind="jsonOption"
+            />
+          </el-form-item>
+        </el-form>
           </div>
         </div>
       </div>
@@ -554,12 +554,12 @@
         align-items: center;
         font-size: 16px;
         font-weight: bold;
-        
+
         .actions {
           display: flex;
           align-items: center;
           gap: 10px;
-          
+
           .github-icon {
             cursor: pointer;
           }
@@ -609,7 +609,7 @@
             right: 0;
             text-align: center;
             color: #606266;
-            font-size: 12px;
+          font-size: 12px;
             background-color: rgba(255, 255, 255, 0.8);
             padding: 2px 0;
             border-top: 1px solid #ebeef5;
