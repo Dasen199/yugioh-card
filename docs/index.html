@@ -10,17 +10,39 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
     
-    <!-- 加载指示器样式 -->
+    <!-- 直接加载CDN资源 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus@2.8.6/dist/index.min.css">
+    
+    <!-- 自定义样式 -->
     <style>
       @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
       }
-      body {
-        font-family: Arial, sans-serif;
+      /* 基础样式 */
+      * {
+        box-sizing: border-box;
+        overflow-wrap: break-word;
+        -webkit-tap-highlight-color: transparent;
+      }
+      html, body {
+        height: 100%;
         margin: 0;
         padding: 0;
+        overflow-x: hidden;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        color: #333;
+        font-size: 14px;
+        background-color: #f5f7fa;
       }
+      /* 应用容器 */
+      .app-container {
+        width: 100%;
+        min-height: 100vh;
+        overflow-y: auto;
+        padding-bottom: 30px;
+      }
+      /* 加载指示器 */
       .loading-container {
         position: fixed;
         top: 0;
@@ -46,16 +68,70 @@
         margin-top: 20px;
         color: #606266;
       }
+      /* 卡片容器 */
+      .yugioh-card-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      /* 标题栏 */
+      .header {
+        margin-bottom: 20px;
+      }
+      .title {
+        font-size: 24px;
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      /* 内容布局 */
+      .content {
+        display: flex;
+        flex-direction: column;
+      }
+      @media (min-width: 768px) {
+        .content {
+          flex-direction: row;
+        }
+      }
+      /* 预览容器 */
+      .preview-container {
+        flex: 0 0 30%;
+        background: linear-gradient(45deg, #f0f0f0 25%, transparent 25%, transparent 75%, #f0f0f0 75%, #f0f0f0), 
+                    linear-gradient(45deg, #f0f0f0 25%, transparent 25%, transparent 75%, #f0f0f0 75%, #f0f0f0);
+        background-size: 20px 20px;
+        background-position: 0 0, 10px 10px;
+        border-radius: 8px;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 500px;
+      }
+      /* 编辑器 */
+      .editor {
+        flex: 1;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+      }
+      @media (min-width: 768px) {
+        .editor {
+          margin-top: 0;
+          margin-left: 20px;
+        }
+      }
     </style>
-    
-    <!-- 直接加载CDN资源 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus@2.8.6/dist/index.min.css">
-    
-    <script src="https://cdn.jsdelivr.net/npm/vue@3.5.12/dist/vue.global.prod.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/element-plus@2.8.6/dist/index.full.min.js"></script>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <div class="app-container">
+        <yugioh-card></yugioh-card>
+      </div>
+    </div>
     <div id="loading" class="loading-container">
       <div style="text-align: center;">
         <div class="spinner"></div>
@@ -63,26 +139,117 @@
       </div>
     </div>
     
+    <!-- 先加载框架脚本 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.5.12/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/element-plus@2.8.6/dist/index.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.min.js"></script>
+    
+    <!-- Leafer 绘图库 (游戏王卡片绘制依赖) -->
+    <script src="https://cdn.jsdelivr.net/npm/leafer-ui@1.0.0/dist/index.min.js"></script>
+    
+    <!-- 主应用脚本 -->
     <script>
-      // 全局变量
-      window.Vue = Vue;
-      window.ElementPlus = ElementPlus;
-      
       // 页面加载完成后隐藏加载指示器
       window.addEventListener('load', function() {
-        document.getElementById('loading').style.display = 'none';
+        setTimeout(() => {
+          const loading = document.getElementById('loading');
+          if (loading) {
+            loading.style.opacity = '0';
+            loading.style.transition = 'opacity 0.5s';
+            setTimeout(() => {
+              loading.style.display = 'none';
+            }, 500);
+          }
+        }, 1000);
       });
       
-      // 创建应用
-      const { createApp, ref, onMounted } = Vue;
-      
-      const app = createApp({
+      // 创建简化版的YugiohCard组件
+      const YugiohCard = {
+        template: `
+          <div class="yugioh-card-container">
+            <div class="header">
+              <div class="title">
+                <span>游戏王AI卡片生成器</span>
+                <div class="actions">
+                  <el-button size="small" type="primary">导出图片</el-button>
+                </div>
+              </div>
+            </div>
+            <div class="content">
+              <div class="preview-container">
+                <div class="card-wrapper">
+                  <div ref="cardContainer" class="card-container">
+                    <div ref="card" class="card"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="editor">
+                <div class="tab-navigation">
+                  <div class="tabs">
+                    <el-tabs v-model="activeTab">
+                      <el-tab-pane label="基本设置" name="basic">
+                        <h3>Card Editor</h3>
+                        <p>很抱歉，当前版本无法正确加载完整功能。请查看 GitHub 项目获取最新版本。</p>
+                        <p><a href="https://github.com/Dasen199/yugioh-card" target="_blank">前往 GitHub 项目</a></p>
+                      </el-tab-pane>
+                      <el-tab-pane label="卡片图片" name="image">
+                        <h3>图片上传功能暂时不可用</h3>
+                      </el-tab-pane>
+                    </el-tabs>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `,
         setup() {
-          const message = ref('游戏王AI卡片生成器已加载！');
+          const activeTab = Vue.ref('basic');
+          
+          Vue.onMounted(() => {
+            // 在这里初始化游戏王卡片绘制
+            try {
+              const cardContainer = document.querySelector('.card-container');
+              if (cardContainer && window.Leafer) {
+                const leafer = new Leafer.Leafer({
+                  view: cardContainer,
+                  width: 400,
+                  height: 580
+                });
+                
+                const box = new Leafer.Rect({
+                  fill: '#ddd',
+                  width: 400,
+                  height: 580,
+                  cornerRadius: 20
+                });
+                
+                const text = new Leafer.Text({
+                  text: '游戏王卡片生成器',
+                  fill: '#333',
+                  fontSize: 24,
+                  fontWeight: 'bold',
+                  x: 50,
+                  y: 50,
+                  width: 300
+                });
+                
+                leafer.add(box, text);
+              }
+            } catch (e) {
+              console.error('初始化卡片失败:', e);
+            }
+          });
           
           return {
-            message
+            activeTab
           };
+        }
+      };
+      
+      // 创建应用
+      const app = Vue.createApp({
+        components: {
+          YugiohCard
         }
       });
       
