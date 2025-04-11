@@ -347,8 +347,8 @@
                       <el-option label="SER" value="ser" />
                       <el-option label="GSER" value="gser" />
                       <el-option label="PSER" value="pser" />
-            </el-select>
-          </el-form-item>
+                    </el-select>
+                  </el-form-item>
                 </el-col>
               </el-row>
               
@@ -753,165 +753,203 @@
 
 <style lang="scss" scoped>
   .yugioh-card-container {
-    height: 100vh;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-    background-color: #f5f7fa;
-    
-    .header {
-      padding: 8px 16px;
-      background-color: #ffffff;
-      border-bottom: 1px solid #dcdfe6;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-      
-      .title {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 16px;
-        font-weight: bold;
+    gap: 20px;
+  }
 
-        .actions {
-          display: flex;
-          align-items: center;
-          gap: 10px;
+  .header {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    padding: 15px 20px;
+    
+    .title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      
+      span {
+        font-size: 18px;
+        font-weight: bold;
+      }
+      
+      .actions {
+        display: flex;
+        gap: 10px;
+      }
+    }
+  }
+
+  .content {
+    display: flex;
+    gap: 20px;
+    
+    @media (max-width: 900px) {
+      flex-direction: column;
+    }
+  }
+
+  .preview-container {
+    width: 100%;
+    flex: 0 0 40%;
+    display: flex;
+    flex-direction: column;
+    
+    .card-preview {
+      position: relative;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+      height: 500px;
+      overflow: auto;
+      padding: 10px;
+      
+      .card {
+        width: 421px;
+        height: 614px;
+      }
+      
+      .scale-control {
+        position: absolute;
+        width: 150px;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 5px 10px;
+        border-radius: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+    }
+    
+    .card-info {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 14px;
+      color: #606266;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+      padding: 10px;
+    }
+  }
+  
+  .editor {
+    flex: 1;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    
+    .tab-navigation {
+      padding: 10px 15px;
+      border-bottom: 1px solid #e4e7ed;
+      
+      .tabs {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        
+        .tab {
+          padding: 8px 16px;
+          cursor: pointer;
+          border-radius: 4px;
+          color: #606266;
+          transition: all 0.3s;
+          
+          &:hover {
+            background-color: #f5f7fa;
+          }
+          
+          &.active {
+            color: #409eff;
+            background-color: #ecf5ff;
+          }
         }
       }
     }
-
-    .content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      padding: 10px;
-      
-      .preview-container {
-        height: 380px;
-        max-height: 380px;
-        width: 100%;
-      overflow: auto;
-        background-color: #ffffff;
-        border-radius: 4px;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-        margin-bottom: 10px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-        
-        .card-preview {
-          padding: 10px;
-          position: relative;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          height: 100%;
-          width: 100%;
-          overflow: auto;
-          
-          .card {
-            transition: transform 0.3s;
-            transform-origin: center;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-            margin: auto;
-          }
-          
-          .scale-control {
-            position: absolute;
-            bottom: 35px;
-            width: 200px;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 5px 10px;
-            border-radius: 15px;
-            border: 1px solid #ebeef5;
-          }
-        }
-        
-        .card-info {
-          position: absolute;
-          bottom: 5px;
-          left: 0;
-          right: 0;
-          text-align: center;
-          color: #606266;
-          font-size: 12px;
-          background-color: rgba(255, 255, 255, 0.8);
-          padding: 2px 0;
-          border-top: 1px solid #ebeef5;
-          z-index: 10;
-        }
-      }
-      
-      .editor {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        background-color: #f9fafc;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        overflow: hidden;
-        
-        .tab-navigation {
-          background-color: #f0f2f5;
-          border-bottom: 1px solid #e4e7ed;
-          
-          .tabs {
-            display: flex;
-            padding: 0 16px;
-            justify-content: center;
-            
-            .tab {
-              padding: 10px 16px;
-              cursor: pointer;
-              color: #606266;
-              font-size: 14px;
-              position: relative;
-              transition: all 0.2s;
-              border-bottom: 2px solid transparent;
-              
-              &.active {
-                color: #409eff;
-                border-bottom-color: #409eff;
-              }
-              
-              &:hover:not(.active) {
-                color: #8cc5ff;
-              }
-            }
-          }
-        }
-        
-        .tab-content {
-          flex: 1;
-          padding: 15px;
-          overflow-y: auto;
-        }
-      }
+    
+    .tab-content {
+      padding: 15px;
+      overflow-y: auto;
     }
   }
 
   .settings-section {
-    background-color: #f9fafc;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    padding: 12px 15px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
     
     h3 {
+      margin-top: 0;
+      margin-bottom: 15px;
       font-size: 16px;
-      margin: 0 0 12px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid #e6e8eb;
-      color: #414756;
+      font-weight: 500;
+      color: #303133;
+      position: relative;
+      padding-left: 12px;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 16px;
+        background-color: #409eff;
+        border-radius: 2px;
+      }
+    }
+  }
+  
+  .ai-generator-wrapper {
+    margin-bottom: 10px;
+  }
+  
+  .generate-button {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin: 15px 0;
+    
+    .el-button {
+      padding: 12px 30px;
+      font-size: 16px;
+    }
+  }
+  
+  /* 修复攻击力和防御力输入框样式 */
+  :deep(.el-input-number) {
+    width: 120px !important;
+    
+    .el-input__wrapper {
+      padding: 0 5px !important;
+    }
+    
+    .el-input__inner {
+      width: 100% !important;
+      padding-right: 30px !important;
+    }
+    
+    .el-input-number__decrease,
+    .el-input-number__increase {
+      width: 24px !important;
     }
   }
 
-  .ai-generator-wrapper {
-    padding: 5px;
-    margin-bottom: 15px;
+  .input-hint {
+    margin-left: 5px;
+    font-size: 12px;
+    color: #909399;
   }
 
   /* 移除特定数据属性 */
@@ -994,31 +1032,6 @@
     margin-top: 8px;
     color: #606266;
     font-size: 14px;
-  }
-
-  /* 修复攻击力和防御力输入框样式 */
-  :deep(.el-input-number) {
-    width: 120px !important;
-    
-    .el-input__wrapper {
-      padding: 0 5px !important;
-    }
-    
-    .el-input__inner {
-      width: 100% !important;
-      padding-right: 30px !important;
-    }
-    
-    .el-input-number__decrease,
-    .el-input-number__increase {
-      width: 24px !important;
-    }
-  }
-
-  .input-hint {
-    margin-left: 5px;
-    font-size: 12px;
-    color: #909399;
   }
 </style>
 
