@@ -4,11 +4,51 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="./vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Yugioh Card</title>
-    <script type="module" crossorigin src="./assets/index-ChpqR0gY.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-CPqVp6Qx.css">
+    <title>游戏王AI卡片生成器</title>
+    
+    <!-- 使用CDN预加载核心资源 -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    
+    <!-- 使用JS判断环境变量 -->
+    <script>
+      // 检测是否为生产环境并加载CDN资源
+      if (location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+        // 添加Element Plus CSS
+        document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus@2.8.6/dist/index.min.css">');
+        
+        // 添加Vue & Element Plus JS
+        document.write('<script src="https://cdn.jsdelivr.net/npm/vue@3.5.12/dist/vue.global.prod.js"><\/script>');
+        document.write('<script src="https://cdn.jsdelivr.net/npm/element-plus@2.8.6/dist/index.full.min.js"><\/script>');
+        document.write('<script src="https://cdn.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.min.js"><\/script>');
+      }
+    </script>
+    <script type="module" crossorigin src="./assets/index-BRZVpccz.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/index-BRZVpccz.js">
+    <link rel="modulepreload" crossorigin href="./assets/element-plus-BlFV1fBW.js">
+    <link rel="stylesheet" crossorigin href="./assets/index-kdXrgI_o.css">
+    <link rel="stylesheet" crossorigin href="./assets/element-plus-CixPMjol.css">
   </head>
   <body>
     <div id="app"></div>
+    <!-- 添加加载指示器 -->
+    <div id="loading" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f5f7fa; display: flex; justify-content: center; align-items: center; z-index: 9999;">
+      <div style="text-align: center;">
+        <div style="border: 5px solid #f3f3f3; border-top: 5px solid #409eff; border-radius: 50%; width: 50px; height: 50px; animation: spin 2s linear infinite; margin: 0 auto;"></div>
+        <p style="margin-top: 20px; color: #606266;">正在加载游戏王卡片资源...</p>
+      </div>
+    </div>
+    <style>
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+    <script>
+      // 页面加载完成后隐藏加载指示器
+      window.addEventListener('load', function() {
+        document.getElementById('loading').style.display = 'none';
+      });
+    </script>
   </body>
 </html>
