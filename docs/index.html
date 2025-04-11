@@ -15,12 +15,30 @@
       // 检测是否为生产环境并加载CDN资源
       if (location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
         // 添加Element Plus CSS
-        document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-plus@2.8.6/dist/index.min.css">');
+        var elementCss = document.createElement('link');
+        elementCss.rel = 'stylesheet';
+        elementCss.href = 'https://cdn.jsdelivr.net/npm/element-plus@2.8.6/dist/index.min.css';
+        document.head.appendChild(elementCss);
         
-        // 添加Vue & Element Plus JS
-        document.write('<script src="https://cdn.jsdelivr.net/npm/vue@3.5.12/dist/vue.global.prod.js"><\/script>');
-        document.write('<script src="https://cdn.jsdelivr.net/npm/element-plus@2.8.6/dist/index.full.min.js"><\/script>');
-        document.write('<script src="https://cdn.jsdelivr.net/npm/@element-plus/icons-vue@2.3.1/dist/index.min.js"><\/script>');
+        // 添加Vue JS
+        var vueScript = document.createElement('script');
+        vueScript.src = 'https://cdn.jsdelivr.net/npm/vue@3.5.12/dist/vue.global.prod.js';
+        document.head.appendChild(vueScript);
+        
+        // 添加Element Plus JS
+        var elementScript = document.createElement('script');
+        elementScript.src = 'https://cdn.jsdelivr.net/npm/element-plus@2.8.6/dist/index.full.min.js';
+        document.head.appendChild(elementScript);
+        
+        // 添加Element Plus Icons，使用ES模块方式
+        vueScript.onload = function() {
+          elementScript.onload = function() {
+            var iconsScript = document.createElement('script');
+            iconsScript.type = 'module';
+            iconsScript.src = 'https://unpkg.com/@element-plus/icons-vue';
+            document.head.appendChild(iconsScript);
+          }
+        }
       }
     </script>
     <script type="module" crossorigin src="./assets/index-BRZVpccz.js"></script>
