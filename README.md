@@ -39,6 +39,10 @@
    - 美化表单按钮样式
    - 改进卡片预览区域滚动
    - 优化生成图片大小
+5. **性能优化**：
+   - 使用jsDelivr CDN加速静态资源加载
+   - 代码分块和懒加载提升首次加载速度
+   - 优化卡片渲染性能和内存占用
 
 ### 使用说明
 
@@ -48,7 +52,33 @@
 
 ## 🚀 在线演示
 
-[在线演示](https://kooriookami.github.io/yugioh-card/)
+[在线演示](https://dasen199.github.io/yugioh-card/)
+
+## 🚄 CDN加速 
+
+本项目使用jsDelivr提供CDN加速，加快网站加载速度：
+
+```js
+// 在生产环境中使用jsDelivr CDN加载静态资源
+const resourcePath = process.env.NODE_ENV === 'production' 
+  ? 'https://cdn.jsdelivr.net/gh/Dasen199/yugioh-card@master/src/assets/yugioh-card'
+  : 'src/assets/yugioh-card';
+
+// 使用CDN加载的第三方库
+// - Vue
+// - Element Plus
+// - Element Plus Icons
+```
+
+开发者可以通过以下命令构建使用CDN加速的版本：
+
+```bash
+# 安装依赖
+npm install
+
+# 构建CDN加速版本
+npm run build:cdn
+```
 
 ## ⚡ 快速开始
 

@@ -11,17 +11,10 @@
 
     <div class="content">
       <div class="preview-container">
-        <div class="card-preview" ref="previewContainer">
-          <div 
-            ref="card" 
-            class="card" 
-            :style="{ 
-              transform: `translate(-50%, -50%) scale(${previewScale})`,
-              position: 'absolute',
-              top: '50%',
-              left: '50%'
-            }" 
-          />
+        <div class="card-wrapper">
+          <div class="card-container" :style="{ transform: `scale(${previewScale})` }">
+            <div ref="card" class="card"></div>
+          </div>
           <div class="scale-control">
             <el-slider
               v-model="previewScale"
@@ -29,11 +22,11 @@
               :max="0.8"
               :step="0.05"
               :format-tooltip="value => `${(value * 100).toFixed(0)}%`"
-            />
-          </div>
+          />
         </div>
-        <div class="card-info" v-if="form.card === 'yugioh' && formData.name">
-          {{ formData.package ? `【${formData.package}】` : '' }} {{formData.name}}
+          <div class="card-info" v-if="form.card === 'yugioh' && formData.name">
+            {{ formData.package ? `【${formData.package}】` : '' }} {{formData.name}}
+          </div>
         </div>
       </div>
 
@@ -347,8 +340,8 @@
                       <el-option label="SER" value="ser" />
                       <el-option label="GSER" value="gser" />
                       <el-option label="PSER" value="pser" />
-                    </el-select>
-                  </el-form-item>
+            </el-select>
+          </el-form-item>
                 </el-col>
               </el-row>
               
@@ -404,7 +397,6 @@
 
   const card = ref(null);
   const cardLeaf = shallowRef(null);
-  const previewContainer = ref(null);
   const form = reactive({
     card: 'yugioh',
     data: {},
@@ -449,7 +441,7 @@
     }
   });
   const imageUrl = ref('');
-  const previewScale = ref(0.45); // 默认预览缩放比例改为45%
+  const previewScale = ref(0.4); // 默认预览缩放比例改为40%
   
   // 设置Tab导航
   const activeTabIndex = ref(0);
@@ -473,82 +465,109 @@
     }
   }
 
-  onMounted(() => {
-    changeCard();
-    
-    // 监听预览缩放变化，调整容器
-    watch(previewScale, () => {
-      nextTick(() => {
-        adjustPreviewContainer();
-      });
-    });
-  });
-  
-  // 修改adjustPreviewContainer函数
-  function adjustPreviewContainer() {
-    if (!previewContainer.value || !card.value) return;
-    
-    // 确保卡片始终在视图的中央
-    const cardElement = card.value;
-    
-    // 设置初始滚动位置为容器中间，这样可以上下滚动
-    nextTick(() => {
-      if (previewContainer.value) {
-        const containerHeight = previewContainer.value.clientHeight;
-        const cardHeight = cardElement.scrollHeight * previewScale.value;
+  function initializeCard() {
+    return new Promise((resolve) => {
+      if (!card.value) {
+        console.warn('Card reference element not available yet');
+        nextTick(() => {
+          initializeCard().then(resolve);
+        });
+        return;
+      }
+      
+      try {
+        if (cardLeaf.value) {
+          cardLeaf.value.leafer.destroy();
+        }
         
-        // 计算卡片的实际高度和容器中心位置的差值
-        // 这确保卡片在缩放后依然可以向上和向下滚动
-        const scrollPosition = Math.max(0, (cardHeight - containerHeight) / 2);
+        let Card;
+        switch (form.card) {
+          case 'yugioh-back':
+            Card = YugiohBackCard;
+            form.data = yugiohBackDemo;
+            Object.assign(formData, yugiohBackDemo);
+            break;
+          case 'yugioh':
+          default:
+            Card = YugiohCard;
+            form.data = yugiohDemo;
+            Object.assign(formData, yugiohDemo);
+        }
         
-        // 设置滚动位置
-        previewContainer.value.scrollTop = scrollPosition;
+        // 清空之前的内容
+        if (card.value) {
+          card.value.innerHTML = '';
+        }
+        
+        // 获取资源路径，生产环境使用jsDelivr CDN
+        const resourcePath = process.env.NODE_ENV === 'production' 
+          ? 'https://cdn.jsdelivr.net/gh/Dasen199/yugioh-card@master/src/assets/yugioh-card'
+          : 'src/assets/yugioh-card';
+        
+        // 创建新卡片
+        cardLeaf.value = new Card({
+          view: card.value,
+          data: form.data,
+          resourcePath: resourcePath,
+        });
+        
+        jsonData.value = form.data;
+        
+        // 如果是预设的图片URL，展示到上传组件
+        if (form.data.image && typeof form.data.image === 'string') {
+          imageUrl.value = form.data.image;
+        }
+        
+        resolve();
+      } catch (error) {
+        console.error('初始化卡片失败:', error);
+        resolve();
       }
     });
-    
-    console.log('Card adjusted, scale:', previewScale.value);
   }
+
+  function changeCard() {
+    initializeCard();
+  }
+  
+  function updateCard() {
+    if (!cardLeaf.value) {
+      console.warn('cardLeaf.value is null, cannot update card');
+      // 尝试初始化
+      initializeCard().then(() => {
+        if (cardLeaf.value) {
+          form.data = JSON.parse(JSON.stringify(formData));
+          cardLeaf.value.setData(form.data);
+          jsonData.value = form.data;
+        }
+      });
+      return;
+    }
+    
+    try {
+      form.data = JSON.parse(JSON.stringify(formData));
+      cardLeaf.value.setData(form.data);
+      jsonData.value = form.data;
+    } catch (error) {
+      console.error('更新卡片失败:', error);
+    }
+  }
+
+  // 监听预览缩放变化 - 不再需要重建卡片，使用CSS transform
+  watch(previewScale, () => {
+    // Scaling now handled by CSS transform in the template
+  });
+
+  onMounted(() => {
+    // 延迟初始化，确保DOM已渲染
+    nextTick(() => {
+      initializeCard();
+    });
+  });
 
   onBeforeUnmount(() => {
     cardLeaf.value?.leafer.destroy();
   });
-
-  function changeCard() {
-    cardLeaf.value?.leafer.destroy();
-    let Card;
-    switch (form.card) {
-      case 'yugioh':
-        form.data = yugiohDemo;
-        Object.assign(formData, yugiohDemo);
-        Card = YugiohCard;
-        break;
-      case 'yugioh-back':
-        form.data = yugiohBackDemo;
-        Object.assign(formData, yugiohBackDemo);
-        Card = YugiohBackCard;
-        break;
-      default:
-        form.data = yugiohDemo;
-        Object.assign(formData, yugiohDemo);
-        Card = YugiohCard;
-    }
-    cardLeaf.value = new Card({
-      view: card.value,
-      data: form.data,
-      resourcePath: process.env.NODE_ENV === 'production' ? 'https://static.ygosgs.com' : 'src/assets/yugioh-card',
-    });
-    jsonData.value = form.data;
-    
-    // 如果是预设的图片URL，展示到上传组件
-    if (form.data.image && typeof form.data.image === 'string') {
-      imageUrl.value = form.data.image;
-    }
-    
-    // 卡片创建后调整容器大小
-    nextTick(() => {
-      adjustPreviewContainer();
-    });
-  }
 
   function exportImage() {
     cardLeaf.value.leafer.export('卡片.png');
@@ -562,23 +581,6 @@
       updateCard();
     };
     reader.readAsDataURL(file.raw);
-  }
-  
-  function updateCard() {
-    form.data = JSON.parse(JSON.stringify(formData));
-    if (cardLeaf.value) {
-      cardLeaf.value.setData(form.data);
-      jsonData.value = form.data;
-    } else {
-      console.warn('cardLeaf.value is null, cannot update card');
-      // 尝试延迟重新初始化卡片
-      nextTick(() => {
-        if (!cardLeaf.value) {
-          console.log('尝试重新初始化卡片...');
-          changeCard();
-        }
-      });
-    }
   }
 
   // 监听表单数据变化，自动更新卡片
@@ -796,46 +798,65 @@
 
   .preview-container {
     width: 100%;
-    flex: 0 0 40%;
-    display: flex;
-    flex-direction: column;
+    flex: 0 0 auto;
+    margin-bottom: 20px;
     
-    .card-preview {
-      position: relative;
+    .card-wrapper {
       background-color: #fff;
       border-radius: 8px;
       box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-      height: 500px;
-      overflow: auto;
-      padding: 10px;
-      
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .card-container {
+      width: 280px;
+      height: 400px;
+      position: relative;
+      overflow: visible;
+      transform-origin: center center;
+      margin-bottom: 15px;
+      background: #f0f0f0;
+      background-image: linear-gradient(45deg, #eaeaea 25%, transparent 25%, transparent 75%, #eaeaea 75%),
+                        linear-gradient(45deg, #eaeaea 25%, transparent 25%, transparent 75%, #eaeaea 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 10px 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
       .card {
-        width: 421px;
-        height: 614px;
-      }
-      
-      .scale-control {
-        position: absolute;
-        width: 150px;
-        bottom: 15px;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: rgba(255, 255, 255, 0.8);
-        padding: 5px 10px;
-        border-radius: 20px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        
+        & > div {
+          width: 100% !important;
+          height: 100% !important;
+        }
       }
     }
     
-    .card-info {
-      margin-top: 10px;
-      text-align: center;
-      font-size: 14px;
-      color: #606266;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    .scale-control {
+      width: 160px;
+      margin: 10px 0;
+      background-color: #f8f9fa;
       padding: 10px;
+      border-radius: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-info {
+      width: 100%;
+      text-align: center;
+      padding: 8px;
+      color: #606266;
+      font-size: 14px;
+      margin-top: 5px;
     }
   }
   
@@ -853,13 +874,13 @@
       border-bottom: 1px solid #e4e7ed;
       
       .tabs {
-        display: flex;
+          display: flex;
         justify-content: center;
         gap: 10px;
-        
+
         .tab {
           padding: 8px 16px;
-          cursor: pointer;
+            cursor: pointer;
           border-radius: 4px;
           color: #606266;
           transition: all 0.3s;
